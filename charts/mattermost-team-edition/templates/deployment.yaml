@@ -55,6 +55,24 @@ spec:
         imagePullPolicy: {{ .Values.initContainerImage.imagePullPolicy }}
         command: ["sh", "-c", "until curl --max-time 10 http://{{ .Release.Name }}-mysql:3306; do echo waiting for {{ .Release.Name }}-mysql; sleep 5; done;"]
       {{- end }}
+      - name: init-plugins-directory
+        image: busybox
+        volumeMounts:
+          - mountPath: /client/plugins
+            name: mattermost-plugins
+        command:
+          - sh
+          - '-c'
+          - chown -R 2000:2000 /client/plugins
+      - name: init-data-directory
+        image: busybox
+        volumeMounts:
+          - mountPath: /data
+            name: mattermost-data
+        command:
+          - sh
+          - '-c'
+          - chown -R 2000:2000 /data
       {{- if .Values.extraInitContainers }}
       {{- .Values.extraInitContainers | toYaml | nindent 6 }}
       {{- end }}
